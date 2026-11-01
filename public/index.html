@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cloud Lost & Found</title>
+<style>
+:root{--b:#1e4fb8;--b2:#2563eb;--bg:#f5f8fd;--t:#14274e;--m:#66748f;--l:#dfe6f2;--r:#e5384b;--g:#16a368}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,Tahoma,sans-serif;background:var(--bg);color:var(--t)}
+nav{background:var(--b);color:#fff;display:flex;align-items:center;gap:18px;padding:12px 5%;flex-wrap:wrap}
+nav b{font-size:20px;margin-inline-end:auto}nav a,nav button{color:#fff;background:none;border:0;font:inherit;cursor:pointer;text-decoration:none;opacity:.9}
+nav a:hover,nav button:hover{opacity:1}#bell{position:relative}#cnt{background:var(--r);border-radius:9px;font-size:11px;padding:1px 6px;position:absolute;top:-6px;inset-inline-end:-10px}
+main{max-width:1200px;margin:0 auto;padding:20px 16px}
+.hero{background:linear-gradient(135deg,#e3eeff,#f1f6ff);border-radius:14px;padding:32px;margin-bottom:20px}.hero h1{margin:0 0 8px;font-size:30px}.hero p{color:var(--m);margin:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--l);border-radius:12px;padding:20px;margin-bottom:20px}.card h2{margin:0 0 14px;font-size:19px;color:var(--b)}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}input,select,textarea{width:100%;padding:10px;border:1px solid var(--l);border-radius:8px;font:inherit}
+.row{display:flex;gap:12px}.row>*{flex:1}.btn{background:var(--b2);color:#fff;border:0;border-radius:8px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;width:100%;margin-top:14px}
+.sr{display:flex;gap:10px}.sr .btn{width:auto;margin:0}.chips{display:flex;gap:8px;margin-top:14px}
+.chip{border:0;border-radius:20px;padding:7px 20px;cursor:pointer;font:inherit;background:#eef2fa}.chip.on{background:var(--b2);color:#fff}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:10px;font-size:13px;color:var(--m)}.feat b{display:block;color:var(--t);font-size:14px;margin:4px 0}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.it{border:1px solid var(--l);border-radius:10px;padding:10px;background:#fff}.it .im{height:130px;border-radius:8px;background:#eef2fa center/cover;position:relative}
+.tag{position:absolute;top:8px;inset-inline-end:8px;color:#fff;font-size:12px;padding:2px 10px;border-radius:12px}.lost{background:var(--r)}.found{background:var(--g)}
+.it h3{margin:10px 0 4px;font-size:16px}.it p{margin:2px 0;font-size:13px;color:var(--m)}.it .btn{margin-top:10px;padding:8px}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:16px;z-index:9}.modal.on{display:flex}
+.box{background:#fff;border-radius:12px;padding:22px;width:100%;max-width:420px;max-height:90vh;overflow:auto}
+#msg{color:var(--r);font-size:13px;min-height:18px}.nt{padding:8px 0;border-bottom:1px solid var(--l);font-size:14px}.nt.u{font-weight:700}
+.empty{color:var(--m);text-align:center;padding:20px;grid-column:1/-1}
+</style></head><body>
+<nav><b>☁️ Cloud Lost &amp; Found</b><a href="#report">Report</a><a href="#search">Search</a>
+<button id="bell" onclick="showNotes()">🔔<span id="cnt" hidden></span></button><span id="who"></span><button onclick="logout()">Logout</button></nav>
+<main>
+<div class="hero"><h1>Find What You Lost<br>or Help Others Find Theirs</h1><p>A platform for students to report and find lost or found items on campus.</p></div>
+<div class="grid"><div class="card" id="report"><h2>➕ Report Lost / Found Item</h2>
+<form id="f"><label>Item Name *</label><input name="name" required placeholder="e.g. iPhone, Backpack, Keys">
+<div class="row"><div><label>Item Type *</label><select name="type"><option value="lost">Lost</option><option value="found">Found</option></select></div>
+<div><label>Date *</label><input type="date" name="date" required></div></div>
+<label>Location *</label><input name="location" required placeholder="e.g. Library, Cafeteria">
+<label>Description</label><textarea name="description" rows="3" placeholder="Add more details about the item..."></textarea>
+<label>Image (optional)</label><input type="file" name="image" accept="image/*"><button class="btn">Submit</button></form></div>
+<div><div class="card" id="search"><h2>🔍 Search Items</h2><div class="sr"><input id="q" placeholder="Search for an item..."><button class="btn" onclick="load()">Search</button></div>
+<div class="chips"><button class="chip on" data-t="">All</button><button class="chip" data-t="lost">Lost</button><button class="chip" data-t="found">Found</button><button class="chip" data-t="mine">My items</button></div></div>
+<div class="card feat"><div>☁️<b>Cloud Database</b>Your data is stored securely in the cloud.</div><div>🖼️<b>Cloud Storage</b>Images are stored in the cloud.</div><div>🛡️<b>Secure &amp; Private</b>Only registered users can access the system.</div></div></div></div>
+<div class="card"><h2>📦 Latest Items</h2><div class="items" id="list"></div></div></main>
+
+<div class="modal" id="auth"><div class="box"><h2 id="at">Login</h2><label hidden>Name</label><input id="an" hidden><label>Email</label><input id="ae" type="email"><label>Password</label><input id="ap" type="password">
+<div id="msg"></div><button class="btn" onclick="doAuth()" id="ab">Login</button><p style="text-align:center;font-size:14px"><a href="#" onclick="toggle();return false" id="sw">Create an account</a></p></div></div>
+<div class="modal" id="det" onclick="if(event.target===this)this.classList.remove('on')"><div class="box" id="dc"></div></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let token=localStorage.t,me=JSON.parse(localStorage.u||'null'),type='',reg=false;
+async function api(p,o={}){const r=await fetch('/api'+p,{...o,headers:{...(o.json?{'Content-Type':'application/json'}:{}),Authorization:'Bearer '+token}, body:o.json?JSON.stringify(o.json):o.body});
+  const d=await r.json().catch(()=>({}));if(r.status===401&&token){logout();return}if(!r.ok)throw new Error(d.error||'Error');return d}
+function toggle(){reg=!reg;$('#an').hidden=!reg;$('#an').previousElementSibling.hidden=!reg;$('#at').textContent=$('#ab').textContent=reg?'Register':'Login';$('#sw').textContent=reg?'Have an account? Login':'Create an account'}
+async function doAuth(){try{const b={email:$('#ae').value,password:$('#ap').value};if(reg)b.name=$('#an').value;
+  const d=await fetch('/api/auth/'+(reg?'register':'login'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error);return j});
+  localStorage.t=token=d.token;localStorage.u=JSON.stringify(me=d.user);start()}catch(e){$('#msg').textContent=e.message}}
+function logout(){localStorage.clear();token=me=null;start()}
+function start(){const ok=!!token;$('#auth').classList.toggle('on',!ok);$('#who').textContent=me?.name||'';if(ok){load();notes()}}
+async function load(){const d=await api('/items?q='+encodeURIComponent($('#q').value)+(type==='mine'?'&mine=1':'&type='+type));if(!d)return;
+  $('#list').innerHTML=d.length?d.map(i=>`<div class="it"><div class="im" style="${i.image?`background-image:url('${esc(i.image)}')`:''}"><span class="tag ${i.type}">${i.type==='lost'?'Lost':'Found'}</span></div>
+  <h3>${esc(i.name)}${i.status==='resolved'?' ✅':''}</h3><p>📍 ${esc(i.location)}</p><p>📅 ${esc(i.date)}</p><p>${esc((i.description||'').slice(0,60))}</p><button class="btn" onclick="detail(${i.id})">View Details</button></div>`).join(''):'<div class="empty">No items found.</div>'}
+async function detail(id){const i=await api('/items/'+id);const mine=i.user_id===me.id;
+  $('#dc').innerHTML=`<h2>${esc(i.name)} <small>(${i.type})</small></h2>${i.image?`<img src="${esc(i.image)}" style="width:100%;border-radius:8px">`:''}<p>📍 ${esc(i.location)} · 📅 ${esc(i.date)}</p><p>${esc(i.description)}</p>
+  <p>Posted by <b>${esc(i.owner_name)}</b><br>✉️ <a href="mailto:${esc(i.owner_email)}">${esc(i.owner_email)}</a></p>
+  ${mine&&i.status==='open'?`<button class="btn" onclick="act(${id},'PATCH','/resolve')">Mark as resolved</button>`:''}${mine?`<button class="btn" style="background:var(--r)" onclick="act(${id},'DELETE','')">Delete</button>`:''}`;$('#det').classList.add('on')}
+async function act(id,m,s){await api('/items/'+id+s,{method:m});$('#det').classList.remove('on');load()}
+async function notes(){const n=await api('/notifications');if(!n)return;const u=n.filter(x=>!x.is_read).length;$('#cnt').hidden=!u;$('#cnt').textContent=u;window.N=n}
+async function showNotes(){$('#dc').innerHTML='<h2>Notifications</h2>'+((window.N||[]).map(n=>`<div class="nt ${n.is_read?'':'u'}">${esc(n.message)}</div>`).join('')||'<p>No notifications yet.</p>');$('#det').classList.add('on');await api('/notifications/read',{method:'POST'});$('#cnt').hidden=true}
+$('#f').onsubmit=async e=>{e.preventDefault();try{const r=await api('/items',{method:'POST',body:new FormData(e.target)});e.target.reset();
+  alert(r.matches?`Submitted! We found ${r.matches} possible match(es) — check your notifications.`:'Submitted!');load();notes()}catch(x){alert(x.message)}};
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');type=c.dataset.t;load()});
+$('#q').onkeydown=e=>e.key==='Enter'&&load();start();setInterval(()=>token&&notes(),30000);
+</script></body></html>

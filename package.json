@@ -1,0 +1,2 @@
+{"name":"cloud-lost-found","version":"2.0.0","description":"Campus Lost & Found web app (zero dependencies)","main":"server.js",
+"scripts":{"start":"node server.js","test":"node test.js"},"engines":{"node":">=22.5"},"license":"MIT"}
